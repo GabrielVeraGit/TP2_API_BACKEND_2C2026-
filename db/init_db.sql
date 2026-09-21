@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS Club_Deportivo;
+
+USE Club_Deportivo;
+
 CREATE TABLE if NOT EXISTS deportes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE
@@ -31,7 +35,7 @@ CREATE TABLE if NOT EXISTS reservas (
     hora_fin TIME NOT NULL,
     precio_hora DECIMAL(10, 2) NOT NULL,
     estado VARCHAR(30) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (socio_id) REFERENCES socios(id),
     FOREIGN KEY (cancha_id) REFERENCES canchas(id)

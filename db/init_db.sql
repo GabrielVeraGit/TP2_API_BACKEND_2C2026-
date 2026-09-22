@@ -12,29 +12,27 @@ CREATE TABLE if NOT EXISTS canchas (
     nombre VARCHAR(100) NOT NULL,
     deporte_id INT NOT NULL,
     precio_hora DECIMAL(10, 2) NOT NULL,
-    estado VARCHAR(30) NOT NULL,
-
+    techada BOOLEAN NOT NULL DEFAULT FALSE,
+    activa BOOLEAN NOT NULL DEFAULT TRUE, -- estado/activo, disponibilidad de poder reservar
     FOREIGN KEY (deporte_id) REFERENCES deportes(id)
 );
 
 CREATE TABLE if NOT EXISTS socios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    apellido VARCHAR(100) NOT NULL,
-    dni VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
-    telefono VARCHAR(20) NOT NULL
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE if NOT EXISTS reservas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     socio_id INT NOT NULL,
-    cancha_id INT NOT NULL,
-    fecha DATE NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
-    precio_hora DECIMAL(10, 2) NOT NULL,
+    cancha_id INT NOT NULL,                 -- cliente (manda la ISO 8601) -> API (la descompone) -> DB (recibe) ,nunca se guarda la ISO literal como str. 
+    fecha_hora_inicio DATETIME(6) NOT NULL, -- DB (manda formateando) -> API -> cliente (recibe la ISO como en el contrato)
+    fecha_hora_fin DATETIME(6) NOT NULL,    -- ej '2026-10-15 18:00:00.000000' 'DATE TIME(6)' instruccion SELECT DATE_FORMAT(fecha_hora_prueba, '%Y-%m-%dT%H:%i:%s.%f-03:00') retorna ISO 8601
     estado VARCHAR(30) NOT NULL,
+    precio_hora DECIMAL(10, 2) NOT NULL,
+    precio_total DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (socio_id) REFERENCES socios(id),
@@ -47,21 +45,31 @@ INSERT INTO deportes (nombre) VALUES
     ('Basketball'),
     ('Tennis');
 
-INSERT INTO canchas (nombre, deporte_id, precio_hora, estado) VALUES
-    ('Cancha 1', 1, 100.00, 'Disponible'),
-    ('Cancha 2', 1, 120.00, 'Disponible'),
-    ('Cancha 3', 2, 80.00, 'Disponible'),
-    ('Cancha 4', 3, 90.00, 'Disponible');
+INSERT INTO canchas (nombre, deporte_id, precio_hora) VALUES
+    ('Cancha 1', 1, 100.00),
+    ('Cancha 2', 1, 120.00),
+    ('Cancha 3', 2, 80.00),
+    ('Cancha 4', 3, 90.00);
 
-INSERT INTO socios (nombre, apellido, dni, email, telefono) VALUES
-    ('Carlos', 'Gomez', '12345678', 'carlos.gomez@example.com', '123456789'),
-    ('Maria', 'Lopez', '23456789', 'maria.lopez@example.com', '987654321'),
-    ('Juan', 'Perez', '34567890', 'juan.perez@example.com', '112233445');
+-- INSERT INTO socios (nombre, apellido, dni, email, telefono) VALUES
+--     ('Carlos', 'Gomez', '12345678', 'carlos.gomez@example.com', '123456789'),
+--     ('Maria', 'Lopez', '23456789', 'maria.lopez@example.com', '987654321'),
+--     ('Juan', 'Perez', '34567890', 'juan.perez@example.com', '112233445');
+INSERT INTO socios (nombre, email) VALUES
+    ('Carlos Gomez', 'carlos.gomez@example.com'),
+    ('Maria Lopez', 'maria.lopez@example.com'),
+    ('Juan Perez', 'juan.perez@example.com');
 
 INSERT INTO reservas
-    (socio_id, cancha_id, fecha, hora_inicio, hora_fin, precio_hora, estado)
+    (socio_id, cancha_id, fecha_hora_inicio, fecha_hora_fin, estado, precio_hora, precio_total)
 VALUES
-    (1, 1, '2026-09-21', '10:00:00', '11:00:00', 100.00, 'Confirmada'),
-    (1, 2, '2026-09-22', '14:00:00', '15:30:00', 120.00, 'Confirmada'),
-    (2, 3, '2026-09-23', '18:00:00', '19:00:00', 80.00, 'Confirmada'),
-    (3, 4, '2026-09-24', '16:00:00', '17:00:00', 90.00, 'Cancelada');
+    (1, 1, '2026-09-21 10:00:00', '2026-09-21 12:00:00', 'Confirmada', 100.00, 200.00),
+    (1, 2, '2026-09-22 14:00:00', '2026-09-22 15:00:00', 'Confirmada', 120.00, 120.00),
+    (2, 3, '2026-09-23 18:00:00', '2026-09-23 21:00:00', 'Confirmada', 80.00, 240.00),
+    (3, 4, '2026-09-24 16:00:00', '2026-09-24 17:00:00', 'Cancelada', 90.00, 90.00);
+
+-- SELECT socio_id, cancha_id, estado, precio_hora, precio_total,
+-- DATE_FORMAT(fecha_hora_inicio, '%Y-%m-%dT%H:%i:%s.%f-03:00') AS fecha_hora_inicio,
+-- DATE_FORMAT(fecha_hora_fin, '%Y-%m-%dT%H:%i:%s.%f-03:00') AS fecha_hora_fin
+-- FROM reservas;
+-- obtenemos lo q el contrato pide

@@ -157,4 +157,4 @@ while [[ ${script_menu_continua} == "si" ]];do
 done
 
 
-source .venv/bin/activate
+#source .venv/bin/activate

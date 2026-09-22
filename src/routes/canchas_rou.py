@@ -1,11 +1,32 @@
-from flask import Blueprint
+from flask import Blueprint, request, jsonify
 
 canchas_bp = Blueprint("canchas",__name__)
 
+canchas = [{
+  "id_deporte": 1,
+  "nombre": "futbol",
+  "techada": true,
+  "activa": true
+},{
+  "id_deporte": 2,
+  "nombre": "natacion",
+  "techada": true,
+  "activa": false
+}]
+
 @canchas_bp.route("/canchas", methods=["GET"])
 def obtener_canchas():
-    print("obtener canchas")
-    return "retornar canchas"
+    
+    id_deporte = request.args.get("id_deporte", type=int)
+    nombre = request.args.get("nombre")
+    techada = request.args.get("techada")
+    activa = request.args.get("activa")
+
+    for cancha in canchas:
+        if (cancha.get("id_deporte") ==  id_deporte):
+            return jsonify(user), 200
+
+    return jsonify(users), 200
 
 @canchas_bp.route("/canchas", methods=["POST"])
 def crear_cancha():

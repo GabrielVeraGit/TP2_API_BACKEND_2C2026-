@@ -22,8 +22,18 @@ def obtener_canchas():
 
 @canchas_bp.route("/canchas", methods=["POST"])
 def crear_cancha():
-    print("crear cancha")
-    return "retorna codigo exito/fallo"
+    data = request.get_json()
+
+    cancha = canchas_service.crear_cancha(data)
+
+    return jsonify({
+        "id": cancha.id,
+        "id_deporte": cancha.id_deporte,
+        "nombre": cancha.nombre,
+        "techada": cancha.techada,
+        "activa": cancha.activa,
+        "precio": cancha.precio
+    }), 201
 
 
 @canchas_bp.route("/canchas/<id>", methods=["GET"])

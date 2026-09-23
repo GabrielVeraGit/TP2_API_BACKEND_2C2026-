@@ -9,6 +9,6 @@ def obtener_deportes():
     resultados = obtener_deportes_rep()
 
     if not resultados:
-        return {"message": "No se encontraron deportes."}, 204
+        return '', 204
 
     return resultados, 200

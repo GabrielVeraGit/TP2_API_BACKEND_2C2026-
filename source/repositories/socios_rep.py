@@ -18,6 +18,7 @@ def obtener_socios_rep(nombre, activo, limit, offset):
         valores.append(activo)
 
     query += " WHERE " + " AND ".join(condiciones) if condiciones else "" 
+    query += " ORDER BY id ASC"
     query += " LIMIT %s OFFSET %s"
     valores.extend([limit, offset])
 

@@ -10,11 +10,22 @@ def obtener_socios():
     nombre = request.args.get("nombre")
     activo = request.args.get("activo")
 
-    limit = request.args.get("limit", default=10, type=int)
-    offset = request.args.get("offset", default=0, type=int)
+    limit = request.args.get("_limit", default=10, type=int)
+    offset = request.args.get("_offset", default=0, type=int)
+
+    if limit is None or limit < 1 or limit > 100:
+        return "", 400
+
+    if offset is None or offset < 0:
+        return "", 400
 
     if activo is not None:
-        activo = activo.lower() == "true"
+        if activo.lower() == "true":
+            activo = True
+        elif activo.lower() == "false":
+            activo = False
+        else:
+            return "", 400
 
     resultados = obtener_socios_rep(nombre, activo, limit, offset)
     

@@ -6,10 +6,17 @@ socios_bp=Blueprint("socios",__name__)
 @socios_bp.route("/socios", methods=["GET"])
 def obtener_socios():
 
+
+    nombre = request.args.get("nombre")
+    activo = request.args.get("activo")
+
     limit = request.args.get("limit", default=10, type=int)
     offset = request.args.get("offset", default=0, type=int)
 
-    resultados = obtener_socios_rep(limit, offset)
+    if activo is not None:
+        activo = activo.lower() == "true"
+
+    resultados = obtener_socios_rep(nombre, activo, limit, offset)
     
     if not resultados:
         return '', 204

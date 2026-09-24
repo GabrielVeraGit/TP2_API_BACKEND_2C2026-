@@ -23,3 +23,12 @@ def obtener_socios_rep(nombre, activo, limit, offset):
     valores.extend([limit, offset])
 
     return ejecutar_instruccion(query, tuple(valores))
+
+def obtener_socio(id):
+    query = """
+        SELECT id, nombre, email, activo
+        FROM socios
+        WHERE id = %s
+    """
+
+    return ejecutar_instruccion(query, (id,))

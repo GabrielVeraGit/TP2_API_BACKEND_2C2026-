@@ -1,6 +1,6 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request, jsonify
 from source.repositories.socios_rep import obtener_socios_rep
-
+from source.repositories.socios_rep import obtener_socio
 socios_bp=Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
@@ -32,7 +32,7 @@ def obtener_socios():
     if not resultados:
         return '', 204
 
-    return resultados, 200
+    return jsonify(resultados), 200
     
 
 @socios_bp.route("/socios", methods=["POST"])
@@ -42,8 +42,9 @@ def crear_reserva():
 
 @socios_bp.route("/socios/<id>", methods=["GET"])
 def obtener_socio_id(id):
-    print("obtener socio especifico")
-    return "retornar socio especifico"
+    socio = obtener_socio(id)
+    return jsonify(socio), 200 if socio else 404
+
 
 @socios_bp.route("/socios/<id>", methods=["PATCH"])
 def actualizar_socio_id(id):

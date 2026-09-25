@@ -1,24 +1,21 @@
 import mysql.connector
-import os # propia de python(no se instala), para poder usar las variables de entorno ya puestas en el OS
-from dotenv import load_dotenv # la libreria q solo sirve para llamar a load_dotenv()
+import os
+from dotenv import load_dotenv
 
-load_dotenv()  # Carga las variables de entorno desde el archivo .env en el OS
+load_dotenv()
 
-def obtener_db_conexion_manual():  #coneccion manual a la base de datos
+
+def obtener_db_conexion_manual():
     connection = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME")
-        )
+    )
+
     return connection
 
 
-
-#retorna 3 posibles resultados: pero siempre es un [{}]
-#1. Si es una instrucción de modificación de datos / alteracion de la estructura, retorna [{}].
-#2. Si es una instrucción de consulta de datos, retorna un arreglo de diccionarios        [{datos1},{datos2}].
-#3. Si ocurre un error, retorna un arreglo con un diccionario con la clave "error"        [{"error": "mensaje de error"}].
 def ejecutar_instruccion(
     query: str,
     valores: tuple = None,
@@ -42,13 +39,12 @@ def ejecutar_instruccion(
             # Si fue un INSERT, obtenemos el ID generado
             if cursor.lastrowid:
                 resultados = [{"id": cursor.lastrowid}]
-
         else:
             resultados = cursor.fetchall()
 
     except Exception as e:
-        print(f"Error no controlado: {e}")
-        resultados = [{"error": str(e)}]
+        print(f"Error interno: {e}")
+        raise
 
     finally:
         cursor.close()

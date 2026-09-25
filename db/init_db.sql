@@ -51,10 +51,6 @@ INSERT INTO canchas (nombre, deporte_id, precio_hora) VALUES
     ('Cancha 3', 2, 80.00),
     ('Cancha 4', 3, 90.00);
 
--- INSERT INTO socios (nombre, apellido, dni, email, telefono) VALUES
---     ('Carlos', 'Gomez', '12345678', 'carlos.gomez@example.com', '123456789'),
---     ('Maria', 'Lopez', '23456789', 'maria.lopez@example.com', '987654321'),
---     ('Juan', 'Perez', '34567890', 'juan.perez@example.com', '112233445');
 INSERT INTO socios (nombre, email) VALUES
     ('Carlos Gomez', 'carlos.gomez@example.com'),
     ('Maria Lopez', 'maria.lopez@example.com'),

@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify, request, jsonify
+from flask import Blueprint, jsonify, request
 from source.repositories.socios_rep import obtener_socios_rep
+from source.repositories.socios_rep import crear_socio_rep
 from source.repositories.socios_rep import obtener_socio
 socios_bp=Blueprint("socios",__name__)
 
@@ -36,14 +37,25 @@ def obtener_socios():
     
 
 @socios_bp.route("/socios", methods=["POST"])
-def crear_reserva():
-    print("crear socio")
-    return "retorna codigo exito/fallo"
+def crear_socio():
+    datos = request.get_json()
+
+    nombre = datos.get("nombre")
+    email = datos.get("email")
+    activo = True
+
+    crear_socio_rep(nombre, email, activo)
+
+    print("datos recibidos: ", datos)
+    return jsonify(datos), 201
 
 @socios_bp.route("/socios/<id>", methods=["GET"])
 def obtener_socio_id(id):
     socio = obtener_socio(id)
-    return jsonify(socio), 200 if socio else 404
+    if socio:
+        return jsonify(socio), 200
+    if not socio:
+        return '', 204
 
 
 @socios_bp.route("/socios/<id>", methods=["PATCH"])

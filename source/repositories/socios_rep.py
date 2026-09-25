@@ -32,3 +32,11 @@ def obtener_socio(id):
     """
 
     return ejecutar_instruccion(query, (id,))
+
+def crear_socio_rep(nombre, email, activo):
+    query = """
+        INSERT INTO socios (nombre, email, activo)
+        VALUES (%s, %s, %s)
+    """
+
+    return ejecutar_instruccion(query, (nombre, email, activo), autocommit=True)

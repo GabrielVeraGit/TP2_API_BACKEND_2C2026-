@@ -1,9 +1,8 @@
 from flask import Blueprint, jsonify, request
-from source.repositories.socios_rep import obtener_socios_rep
-from source.repositories.socios_rep import crear_socio_rep
-from source.repositories.socios_rep import obtener_socio
-from source.repositories.socios_rep import modificar_socio_rep
-socios_bp=Blueprint("socios",__name__)
+from source.repositories.socios_rep import obtener_socios_rep, crear_socio_rep, obtener_socio, modificar_socio_rep
+from source.validators.socios_val import validar_email, validar_nombre
+
+socios_bp = Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
 def obtener_socios():
@@ -41,14 +40,22 @@ def obtener_socios():
 def crear_socio():
     datos = request.get_json()
 
-    nombre = datos.get("nombre")
-    email = datos.get("email")
+    try:
+        nombre = validar_nombre(datos.get("nombre"))
+        email = validar_email(datos.get("email"))
+
+    except ValueError as e:
+        return jsonify(e.args[0]), 400
+    
     activo = True
 
     crear_socio_rep(nombre, email, activo)
 
-    print("datos recibidos: ", datos)
-    return jsonify(datos), 201
+    return jsonify({
+        "nombre" : nombre,
+        "email" : email,
+        "activo" : activo
+    }), 201
 
 @socios_bp.route("/socios/<id>", methods=["GET"])
 def obtener_socio_id(id):

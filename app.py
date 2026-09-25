@@ -2,7 +2,7 @@ from config import Config, db
 from flask import Flask, jsonify, request, redirect, send_from_directory
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from src.routes.canchas_rou import canchas_bp
+from source.routes.canchas_rou import canchas_bp
 
 
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.services import canchas_service
+from source.services import canchas_service
 
 canchas_bp = Blueprint("canchas",__name__)
 
@@ -32,7 +32,7 @@ def crear_cancha():
         "nombre": cancha.nombre,
         "techada": cancha.techada,
         "activa": cancha.activa,
-        "precio": cancha.precio
+        "precio_hora": cancha.precio_hora
     }), 201
 
 

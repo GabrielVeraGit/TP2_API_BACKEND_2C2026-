@@ -11,6 +11,8 @@ def obtener_canchas():
     techada = request.args.get("techada")
     activa = request.args.get("activa")
 
+    print("ID DEPORTE RECIBIDO:", id_deporte)
+
     resultado = canchas_service.obtener_canchas(
         id_deporte=id_deporte,
         nombre=nombre,

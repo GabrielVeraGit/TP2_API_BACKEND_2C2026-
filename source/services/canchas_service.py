@@ -2,7 +2,7 @@ from source.data.canchas_data import canchas
 from source.repositories import canchas_rep
 
 def obtener_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
-    return canchas_rep.consultar_canchas()
+    return canchas_rep.consultar_canchas(id_deporte, nombre, techada, activa)
 
 
 def crear_cancha(data):

@@ -19,27 +19,36 @@ def obtener_db_conexion_manual():  #coneccion manual a la base de datos
 #1. Si es una instrucción de modificación de datos / alteracion de la estructura, retorna [{}].
 #2. Si es una instrucción de consulta de datos, retorna un arreglo de diccionarios        [{datos1},{datos2}].
 #3. Si ocurre un error, retorna un arreglo con un diccionario con la clave "error"        [{"error": "mensaje de error"}].
-def ejecutar_instruccion(query:str, valores:tuple=None, autocommit:bool=False)->list[dict]:
-    resultados = list(dict())
+def ejecutar_instruccion(
+    query: str,
+    valores: tuple = None,
+    autocommit: bool = False
+) -> list[dict]:
+
+    resultados = []
 
     conexion = obtener_db_conexion_manual()
-    cursor = conexion.cursor(dictionary=True, buffered=True) # dictionary=True para que devuelva dicts en vez de tuplas
+    cursor = conexion.cursor(dictionary=True, buffered=True)
 
     try:
-        if valores is None: #mandar a ejecutar la instrucción con/sin valores
-            cursor.execute(query) 
+        if valores is None:
+            cursor.execute(query)
         else:
             cursor.execute(query, valores)
 
-        if autocommit: 
-            conexion.commit() #si la instruccion(query) realiza "cualquier" alteracion de datos o estructura, se hace commit para CONFIRMAR los cambios en la base de datos
+        if autocommit:
+            conexion.commit()
+
+            # Si fue un INSERT, obtenemos el ID generado
+            if cursor.lastrowid:
+                resultados = [{"id": cursor.lastrowid}]
+
         else:
-            resultados = cursor.fetchall() #si la instruccion(query) es de consultar datos, se obtienen/traen los resultados
+            resultados = cursor.fetchall()
 
     except Exception as e:
         print(f"Error no controlado: {e}")
-        resultados = [{"error": str(e)}]         
-        return resultados
+        resultados = [{"error": str(e)}]
 
     finally:
         cursor.close()

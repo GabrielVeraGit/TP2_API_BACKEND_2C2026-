@@ -1,47 +1,73 @@
-from config import db
-from source.models import cancha_model
+from source.db import ejecutar_instruccion
 
 
-def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None ):
+from source.db import ejecutar_instruccion
 
-    consulta = db.session.query(cancha_model.Cancha)
+
+def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
+
+    query = """
+        SELECT
+            id,
+            deporte_id AS id_deporte,
+            nombre,
+            techada,
+            activa,
+            precio_hora
+        FROM canchas
+        WHERE 1=1
+    """
+
+    valores = []
 
     if id_deporte is not None:
-        consulta = consulta.filter(
-            cancha_model.Cancha.id_deporte == id_deporte
-        )
+        query += " AND deporte_id = %s"
+        valores.append(id_deporte)
 
     if nombre is not None:
-        consulta = consulta.filter(
-            cancha_model.Cancha.nombre == nombre
-        )
+        query += " AND nombre = %s"
+        valores.append(nombre)
 
     if techada is not None:
-        consulta = consulta.filter(
-            cancha_model.Cancha.techada == techada
-        )
+        query += " AND techada = %s"
+        valores.append(techada)
 
     if activa is not None:
-        consulta = consulta.filter(
-            cancha_model.Cancha.activa == activa
-        )
+        query += " AND activa = %s"
+        valores.append(activa)
 
-    canchas = consulta.all()
-
-    return [cancha.to_dict() for cancha in canchas]
-
-
+    return ejecutar_instruccion(query, tuple(valores))
 
 def crear_cancha(id_deporte, nombre, techada, activa, precio_hora):
-    cancha = cancha_model.Cancha(
-        id_deporte=id_deporte,
-        nombre=nombre,
-        techada=techada,
-        activa=activa,
-        precio_hora=precio_hora
+
+    query = """
+        INSERT INTO canchas
+            (deporte_id, nombre, techada, activa, precio_hora)
+        VALUES
+            (%s, %s, %s, %s, %s)
+    """
+
+    valores = (
+        id_deporte,
+        nombre,
+        techada,
+        activa,
+        precio_hora
     )
 
-    db.session.add(cancha)
-    db.session.commit()
+    resultado = ejecutar_instruccion(
+        query,
+        valores,
+        autocommit=True
+    )
 
-    return cancha
+    return {
+        "id": resultado[0]["id"],
+        "id_deporte": id_deporte,
+        "nombre": nombre,
+        "techada": techada,
+        "activa": activa,
+        "precio_hora": precio_hora
+    }
+
+    

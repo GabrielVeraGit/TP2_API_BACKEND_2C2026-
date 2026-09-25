@@ -28,13 +28,18 @@ def crear_cancha():
 
     cancha = canchas_service.crear_cancha(data)
 
+    if isinstance(cancha, tuple):
+        return jsonify({
+            "error": cancha[1]
+        }), 400
+
     return jsonify({
-        "id": cancha.id,
-        "id_deporte": cancha.id_deporte,
-        "nombre": cancha.nombre,
-        "techada": cancha.techada,
-        "activa": cancha.activa,
-        "precio_hora": cancha.precio_hora
+        "id": cancha["id"],
+        "id_deporte": cancha["id_deporte"],
+        "nombre": cancha["nombre"],
+        "techada": cancha["techada"],
+        "activa": cancha["activa"],
+        "precio_hora": cancha["precio_hora"]
     }), 201
 
 

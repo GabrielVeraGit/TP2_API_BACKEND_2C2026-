@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from source.repositories.socios_rep import obtener_socios_rep
 from source.repositories.socios_rep import crear_socio_rep
 from source.repositories.socios_rep import obtener_socio
+from source.repositories.socios_rep import modificar_socio_rep
 socios_bp=Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
@@ -60,5 +61,8 @@ def obtener_socio_id(id):
 
 @socios_bp.route("/socios/<id>", methods=["PATCH"])
 def actualizar_socio_id(id):
-    print("actualizar socio especifico")
-    return "retorna codigo exito/fallo"
+    datos = request.get_json()
+
+    modificar_socio_rep(id, datos)
+
+    return '', 200

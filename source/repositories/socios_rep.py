@@ -40,3 +40,32 @@ def crear_socio_rep(nombre, email, activo):
     """
 
     return ejecutar_instruccion(query, (nombre, email, activo), autocommit=True)
+
+def modificar_socio_rep(id, datos):
+    campos = []
+    valores = []
+
+    if "nombre" in datos:
+        campos.append("nombre = %s")
+        valores.append(datos["nombre"])
+
+    if "email" in datos:
+        campos.append("email = %s")
+        valores.append(datos["email"])
+
+    if "activo" in datos:
+        campos.append("activo = %s")
+        valores.append(datos["activo"])
+
+    if not campos:
+        return []
+
+    query = """
+        UPDATE socios
+        SET """ + ", ".join(campos) + """
+        WHERE id = %s
+    """
+
+    valores.append(id)
+
+    return ejecutar_instruccion(query, tuple(valores), autocommit=True)    

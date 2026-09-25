@@ -1,6 +1,9 @@
+import email
+
 from flask import Blueprint, jsonify, request
 from source.repositories.socios_rep import obtener_socios_rep, crear_socio_rep, obtener_socio, modificar_socio_rep
-from source.validators.socios_val import validar_email, validar_nombre
+from source.utils import construir_error_api
+from source.validators.socios_val import validar_socio
 
 socios_bp = Blueprint("socios",__name__)
 
@@ -41,21 +44,31 @@ def crear_socio():
     datos = request.get_json()
 
     try:
-        nombre = validar_nombre(datos.get("nombre"))
-        email = validar_email(datos.get("email"))
+        nombre, email = validar_socio(datos.get("nombre"), datos.get("email"))
+
+        crear_socio_rep(nombre, email, True)
+
+        return jsonify({
+            "nombre" : nombre,
+            "email" : email,
+        }), 201
 
     except ValueError as e:
-        return jsonify(e.args[0]), 400
-    
-    activo = True
+        error = e.args[0]
 
-    crear_socio_rep(nombre, email, activo)
+        if error["errors"][0]["code"] == "conflict.email.exists":
+            return jsonify(error), 409
 
-    return jsonify({
-        "nombre" : nombre,
-        "email" : email,
-        "activo" : activo
-    }), 201
+        return jsonify(error), 400
+
+    except Exception as e:
+        print (f"Error interno: {e}")
+
+        return jsonify(construir_error_api(
+            code = "internal.db.error",
+            message = "Error interno del servidor",
+            description = "Ocurrio un error inesperado al procesar la solicitud"
+        )), 500
 
 @socios_bp.route("/socios/<id>", methods=["GET"])
 def obtener_socio_id(id):

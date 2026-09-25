@@ -1,15 +1,19 @@
 from re import sub, match
 
-def construir_error_api(code: str, message: str, description: str) -> dict:
+def construir_error_api(code: str, message: str, description: str, level: str = "error") -> dict:
     """
     Construye un diccionario con la estructura de error de la API.
     """
+
     return {
-        'error': {
-            'code': code,
-            'message': message,
-            'description': description
-        }
+        "errors": [
+            {
+                "code": code,
+                "message": message,
+                "level": level,
+                "description": description
+            }
+        ]
     }
 
 def validar_string_no_vacio(valor, campo: str = 'campo') -> str:

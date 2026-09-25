@@ -68,4 +68,17 @@ def modificar_socio_rep(id, datos):
 
     valores.append(id)
 
-    return ejecutar_instruccion(query, tuple(valores), autocommit=True)    
+    return ejecutar_instruccion(query, tuple(valores), autocommit=True)
+
+def existe_email_socio(email: str) -> bool:
+    """
+    Verifica si el email ya existe en la base de datos.
+    """
+
+    query = """
+        SELECT id
+        FROM socios
+        WHERE email = %s
+    """
+
+    return ejecutar_instruccion(query, (email,))

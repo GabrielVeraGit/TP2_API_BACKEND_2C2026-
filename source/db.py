@@ -18,7 +18,7 @@ def obtener_db_conexion_manual():  #coneccion manual a la base de datos
 #retorna 3 posibles resultados: pero siempre es un [{}]
 #1. Si es una instrucción de modificación de datos / alteracion de la estructura, retorna [{}].
 #2. Si es una instrucción de consulta de datos, retorna un arreglo de diccionarios        [{datos1},{datos2}].
-#3. Si ocurre un error, retorna un arreglo con un diccionario con la clave "error"        [{"error": "mensaje de error"}].
+#3. Si ocurre un error, propaga la excepcion
 def ejecutar_instruccion(query:str, valores:tuple=None, autocommit:bool=False)->list[dict]:
     resultados = list(dict())
 
@@ -37,9 +37,8 @@ def ejecutar_instruccion(query:str, valores:tuple=None, autocommit:bool=False)->
             resultados = cursor.fetchall() #si la instruccion(query) es de consultar datos, se obtienen/traen los resultados
 
     except Exception as e:
-        print(f"Error no controlado: {e}")
-        resultados = [{"error": str(e)}]         
-        return resultados
+        print(f"Error interno: {e}")
+        raise # Para propagar la excepción y que se pueda manejar mas arriba
 
     finally:
         cursor.close()

@@ -4,6 +4,8 @@ from source.repositories import canchas_rep, deportes_rep
 def obtener_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
     return canchas_rep.consultar_canchas(id_deporte, nombre, techada, activa)
 
+def cancha_por_id(id):
+    return canchas_rep.cancha_por_id(id)
 
 def crear_cancha(data):
     deporte_id = deportes_rep.consulta_deporte(data.get("id_deporte"))
@@ -18,3 +20,16 @@ def crear_cancha(data):
         activa=data.get("activa"),
         precio_hora=data.get("precio_hora")
         )
+
+def update_cancha(id, data):
+    existe_cancha = canchas_rep.cancha_por_id(id)
+    if existe_cancha is None:
+            return None, "El id indicado no existe"
+
+    return canchas_rep.update_cancha(
+        id=id,
+        nombre=data.get("nombre"),
+        techada=data.get("techada"),
+        activa=data.get("activa"),
+        precio_hora=data.get("precio_hora")
+    )

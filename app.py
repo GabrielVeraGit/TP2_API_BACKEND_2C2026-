@@ -3,14 +3,15 @@ from config import Config
 from flask import Flask, redirect, send_from_directory
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from source.routes.canchas_rou import canchas_bp
+from source.routes import canchas_rou, deportes_rou
 
 
 app = Flask(__name__)
 
 app.config.from_object(Config)
 
-app.register_blueprint(canchas_bp)
+app.register_blueprint(canchas_rou.canchas_bp)
+app.register_blueprint(deportes_rou.deportes_bp)
 
 
 SWAGGER_URL = "/swagger"

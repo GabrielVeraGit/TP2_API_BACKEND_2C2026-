@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from source.services import canchas_service
+from source.services import canchas_serv
 
 canchas_bp = Blueprint("canchas",__name__)
 
@@ -13,7 +13,7 @@ def obtener_canchas():
 
     print("ID DEPORTE RECIBIDO:", id_deporte)
 
-    resultado = canchas_service.obtener_canchas(
+    resultado = canchas_serv.obtener_canchas(
         id_deporte=id_deporte,
         nombre=nombre,
         techada=techada,
@@ -26,7 +26,7 @@ def obtener_canchas():
 def crear_cancha():
     data = request.get_json()
 
-    cancha = canchas_service.crear_cancha(data)
+    cancha = canchas_serv.crear_cancha(data)
 
     if isinstance(cancha, tuple):
         return jsonify({
@@ -45,13 +45,16 @@ def crear_cancha():
 
 @canchas_bp.route("/canchas/<id>", methods=["GET"])
 def obtener_cancha_id(id):
-    print(f"obtener cancha especifica {id}")
-    return "retornar cancha"
+    cancha = canchas_serv.cancha_por_id(id)
+    return jsonify(cancha), 200
 
 @canchas_bp.route("/canchas/<id>", methods=["PATCH"])
 def actualizar_cancha_id(id):
+    data = request.get_json()
+    cancha = canchas_serv.update_cancha(id, data)
+
     print("actualizar cancha especifica")
-    return "retornar codigo exito/fallo"
+    return cancha
 
 @canchas_bp.route("/canchas/<id>", methods=["DELETE"])
 def eliminar_cancha_id(id):

@@ -1,5 +1,12 @@
 from source.db import ejecutar_instruccion
 
+def deportes_list():
+    query = """
+            SELECT *
+            FROM deportes
+        """
+    
+    return ejecutar_instruccion(query)
 
 def consulta_deporte(id):
 

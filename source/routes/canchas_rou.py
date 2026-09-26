@@ -1,27 +1,60 @@
-from flask import Blueprint
+from flask import Blueprint, request, jsonify
+from source.services import canchas_serv
 
 canchas_bp = Blueprint("canchas",__name__)
 
 @canchas_bp.route("/canchas", methods=["GET"])
 def obtener_canchas():
-    print("obtener canchas")
-    return "retornar canchas"
+
+    id_deporte = request.args.get("id_deporte", type=int)
+    nombre = request.args.get("nombre")
+    techada = request.args.get("techada")
+    activa = request.args.get("activa")
+
+    print("ID DEPORTE RECIBIDO:", id_deporte)
+
+    resultado = canchas_serv.obtener_canchas(
+        id_deporte=id_deporte,
+        nombre=nombre,
+        techada=techada,
+        activa=activa
+    )
+
+    return jsonify(resultado), 200
 
 @canchas_bp.route("/canchas", methods=["POST"])
 def crear_cancha():
-    print("crear cancha")
-    return "retorna codigo exito/fallo"
+    data = request.get_json()
+
+    cancha = canchas_serv.crear_cancha(data)
+
+    if isinstance(cancha, tuple):
+        return jsonify({
+            "error": cancha[1]
+        }), 400
+
+    return jsonify({
+        "id": cancha["id"],
+        "id_deporte": cancha["id_deporte"],
+        "nombre": cancha["nombre"],
+        "techada": cancha["techada"],
+        "activa": cancha["activa"],
+        "precio_hora": cancha["precio_hora"]
+    }), 201
 
 
 @canchas_bp.route("/canchas/<id>", methods=["GET"])
 def obtener_cancha_id(id):
-    print(f"obtener cancha especifica {id}")
-    return "retornar cancha"
+    cancha = canchas_serv.cancha_por_id(id)
+    return jsonify(cancha), 200
 
 @canchas_bp.route("/canchas/<id>", methods=["PATCH"])
 def actualizar_cancha_id(id):
+    data = request.get_json()
+    cancha = canchas_serv.update_cancha(id, data)
+
     print("actualizar cancha especifica")
-    return "retornar codigo exito/fallo"
+    return cancha
 
 @canchas_bp.route("/canchas/<id>", methods=["DELETE"])
 def eliminar_cancha_id(id):

@@ -60,8 +60,16 @@ def actualizar_cancha_id(id):
 
 @canchas_bp.route("/canchas/<id>", methods=["DELETE"])
 def eliminar_cancha_id(id):
-    print("eliminar cancha especifica")
-    return "retornar codigo exito/fallo"
+    cancha_id = canchas_serv.cancha_por_id(id)
+    
+    if cancha_id is None:
+        return jsonify({"error": "La cancha no existe"}), 404
+    
+    cancha=canchas_serv.eliminar_cancha(id)
+    if isinstance(cancha, tuple):
+        return jsonify({"error": cancha[1]}), 409
+
+    return "", 204
 
 @canchas_bp.route("/canchas/disponibles", methods=["GET"])
 def obtener_canchas_disponibles():

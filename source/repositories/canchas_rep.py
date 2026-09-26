@@ -114,3 +114,16 @@ def update_cancha(
     ejecutar_instruccion(query, valores, autocommit=True)
 
     return cancha_por_id(id)
+
+def eliminar_cancha(id_cancha):
+
+    query = """
+        DELETE FROM canchas
+        WHERE id = %s
+    """
+
+    ejecutar_instruccion(
+        query,
+        (id_cancha,),
+        autocommit=True
+    )

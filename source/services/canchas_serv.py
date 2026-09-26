@@ -1,5 +1,5 @@
 from source.data.canchas_data import canchas
-from source.repositories import canchas_rep, deportes_rep
+from source.repositories import canchas_rep, deportes_rep, reservas_rep
 
 def obtener_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=None):
     return canchas_rep.consultar_canchas(id_deporte, nombre, techada, activa, limit)
@@ -35,3 +35,18 @@ def update_cancha(id, data):
         activa=data.get("activa",existe_cancha["activa"]),
         precio_hora=data.get("precio_hora",existe_cancha["precio_hora"])
     )
+
+def eliminar_cancha(id_cancha):
+
+    filtros = [id_cancha]
+    query_filtros = "id = %s"
+
+    reservas = reservas_rep.obtener_reservas_rep(filtros, query_filtros)
+
+    if not reservas:
+        return None, "La reserva indicada no existe"
+
+    return canchas_rep.eliminar_cancha(id_cancha)
+
+    
+

@@ -1,14 +1,12 @@
-import email
-
 from flask import Blueprint, jsonify, request
-from source.repositories.socios_rep import obtener_socios_rep, crear_socio_rep, obtener_socio, modificar_socio_rep
+from source.services.socios_serv import crear_socio, obtener_socios, obtener_socio, modificar_socio
 from source.utils import construir_error_api
-from source.validators.socios_val import validar_socio
+from source.constants import PAGINATION_LIMIT_MAX, PAGINATION_LIMIT_MIN, PAGINATION_OFFSET_MIN
 
 socios_bp = Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
-def obtener_socios():
+def obtener_socios_rou():
 
 
     nombre = request.args.get("nombre")
@@ -17,10 +15,10 @@ def obtener_socios():
     limit = request.args.get("_limit", default=10, type=int)
     offset = request.args.get("_offset", default=0, type=int)
 
-    if limit is None or limit < 1 or limit > 100:
+    if limit is None or limit < PAGINATION_LIMIT_MIN or limit > PAGINATION_LIMIT_MAX:
         return "", 400
 
-    if offset is None or offset < 0:
+    if offset is None or offset < PAGINATION_OFFSET_MIN:
         return "", 400
 
     if activo is not None:
@@ -31,26 +29,27 @@ def obtener_socios():
         else:
             return "", 400
 
-    resultados = obtener_socios_rep(nombre, activo, limit, offset)
+    resultados = obtener_socios(nombre, activo, limit, offset)
     
     if not resultados:
         return '', 204
 
     return jsonify(resultados), 200
     
-
 @socios_bp.route("/socios", methods=["POST"])
-def crear_socio():
+def crear_socio_route():
+
     datos = request.get_json()
 
     try:
-        nombre, email = validar_socio(datos.get("nombre"), datos.get("email"))
+        nombre = datos.get("nombre")
+        email = datos.get("email")
 
-        crear_socio_rep(nombre, email, True)
+        crear_socio(nombre, email)
 
         return jsonify({
-            "nombre" : nombre,
-            "email" : email,
+            "nombre": nombre,
+            "email": email
         }), 201
 
     except ValueError as e:
@@ -62,27 +61,33 @@ def crear_socio():
         return jsonify(error), 400
 
     except Exception as e:
-        print (f"Error interno: {e}")
+        print(f"Error interno: {e}")
 
-        return jsonify(construir_error_api(
-            code = "internal.db.error",
-            message = "Error interno del servidor",
-            description = "Ocurrio un error inesperado al procesar la solicitud"
-        )), 500
+        return jsonify(
+            construir_error_api(
+                code="internal.db.error",
+                message="Error interno del servidor",
+                description="Ocurrio un error inesperado al procesar la solicitud"
+            )
+        ), 500
 
 @socios_bp.route("/socios/<id>", methods=["GET"])
 def obtener_socio_id(id):
     socio = obtener_socio(id)
-    if socio:
-        return jsonify(socio), 200
+
     if not socio:
         return '', 204
 
+    return jsonify(socio), 200
 
 @socios_bp.route("/socios/<id>", methods=["PATCH"])
 def actualizar_socio_id(id):
     datos = request.get_json()
 
-    modificar_socio_rep(id, datos)
+    try:
+        modificar_socio(id, datos)
 
-    return '', 200
+        return '', 200
+
+    except ValueError as e:
+        return jsonify(e.args[0]), 400

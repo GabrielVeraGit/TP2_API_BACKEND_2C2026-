@@ -1,18 +1,18 @@
-from config import Config
-
 from flask import Flask, redirect, send_from_directory
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from source.routes import canchas_rou, deportes_rou
+from source.routes.deportes_rou import deportes_bp
+from source.routes.canchas_rou import canchas_bp
+from source.routes.socios_rou import socios_bp
+from source.routes.reservas_rou import reservas_bp
 
 
 app = Flask(__name__)
 
-app.config.from_object(Config)
-
-app.register_blueprint(canchas_rou.canchas_bp)
-app.register_blueprint(deportes_rou.deportes_bp)
-
+app.register_blueprint(deportes_bp)
+app.register_blueprint(canchas_bp)
+app.register_blueprint(socios_bp)
+app.register_blueprint(reservas_bp)
 
 SWAGGER_URL = "/swagger"
 API_URL = "/docs/swagger.yaml"
@@ -43,4 +43,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run(port=6969, debug=False)
+    app.run(port=6969, debug=True)

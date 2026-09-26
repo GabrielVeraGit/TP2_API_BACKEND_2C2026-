@@ -1,5 +1,3 @@
-from re import sub, match
-
 def construir_error_api(code: str, message: str, description: str, level: str = "error") -> dict:
     """
     Construye un diccionario con la estructura de error de la API.

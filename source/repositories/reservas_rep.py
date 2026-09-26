@@ -33,12 +33,12 @@ def obtener_reservas_rep(filtros:list, query_filtros:str) -> list:
     filtros.append(limit)
     filtros.append(offset)
 
-    resultados =  ejecutar_instruccion(query, tuple(filtros))
-
-    if len(resultados)!=0 and resultados[0].get("error",False):
-        return ("error_interno", resultados) #errores con el servidor, con mysql
+    try:
+        resultados =  ejecutar_instruccion(query, tuple(filtros))
+    except Exception as error_interno:
+        return ("error_interno", error_interno) 
     
-    elif len(resultados)==0:
+    if len(resultados)==0:
         resultados=[{ "code": "No found", "message": "No se encontro algun resultado", "level": "error", "description": "NOT FOUND"}]
         return ("vacio", resultados)
     
@@ -84,29 +84,41 @@ def obtener_links_rep(filtros:list, query_filtros:str) -> dict:
     query_params.pop("_offset", None)
 
     query_params=urlencode(query_params) #reconstruirlos a query
-            
+
+    if len(query_params) !=0:
+        query_params=f"&{query_params}"
+
     links={
-    "_first": {"href": f"{uri_params}?_limit={limit}&_offset={offset_first}&{query_params}"},
-    "_prev": {"href": f"{uri_params}?_limit={limit}&_offset={offset_prev}&{query_params}"},
-    "_next": {"href": f"{uri_params}?_limit={limit}&_offset={offset_next}&{query_params}"},
-    "_last": {"href": f"{uri_params}?_limit={limit}&_offset={offset_last}&{query_params}"}
+    "_first": {"href": f"{uri_params}?_limit={limit}&_offset={offset_first}{query_params}"},
+    "_prev": {"href": f"{uri_params}?_limit={limit}&_offset={offset_prev}{query_params}"},
+    "_next": {"href": f"{uri_params}?_limit={limit}&_offset={offset_next}{query_params}"},
+    "_last": {"href": f"{uri_params}?_limit={limit}&_offset={offset_last}{query_params}"}
   }
 
     return links
 
 def obtener_reserva_id_rep(reserva_id:int) -> tuple[str, list]:
     query="""SELECT id, socio_id, cancha_id, fecha_hora_inicio, fecha_hora_fin, estado, precio_hora, precio_total FROM reservas WHERE id=%s"""
-    
-    resultado=ejecutar_instruccion(query, (reserva_id,))
 
-    if len(resultado)!=0 and resultado[0].get("error",False): #entra solo si esta el dict error interno
-        return ("error_interno", resultado)
+    try:
+        resultado=ejecutar_instruccion(query, (reserva_id,))
+    except Exception as error_interno:
+        return ("error_interno", error_interno)
     
-    elif len(resultado)==0:
+    if len(resultado)==0:
         resultado=[{ "code": "No found", "message": "No se encontro algun resultado", "level": "error", "description": "NOT FOUND"}]
         return ("vacio", resultado)
     
     else:
         for registro in resultado:
             aplicar_formato(registro)
-        return ("lleno", resultado)
+        return (None, resultado)
+
+def actualizar_reserva_rep(peticion_tipo:str, id:int):
+    query="""UPDATE reservas SET estado = %s WHERE id = %s;"""
+    try:
+        ejecutar_instruccion(query,(peticion_tipo,id),True)
+        return None, None
+    except Exception as error_interno:
+        return "error_interno", error_interno
+     

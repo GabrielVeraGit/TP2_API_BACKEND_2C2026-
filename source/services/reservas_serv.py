@@ -1,6 +1,5 @@
 from flask import request
-
-
+from datetime import datetime, timezone, timedelta
 
 def obtener_reservas_serv():
     filtros=[]
@@ -38,3 +37,38 @@ def obtener_reservas_serv():
     query= "AND ".join(query_filtros)
 
     return filtros, query
+
+def actualizar_reserva_serv(registro:list[dict]) -> tuple:
+
+    gmt_3 = timezone(timedelta(hours=-3))
+
+    ahora = datetime.now(gmt_3) #class datetime
+    reserva_inicio=registro[0].get("fecha_hora_inicio")#class str
+    reserva_fin=registro[0].get("fecha_hora_fin")
+    reserva_inicio=datetime.fromisoformat(reserva_inicio) #class datetime
+    reserva_fin=datetime.fromisoformat(reserva_fin)
+
+    body = request.get_json(silent=True)
+
+    estado_solicitado = str(body.get("estado")).lower()
+    estado_actual=str(registro[0].get("estado")).lower()
+
+    errores=[{ "code": "ERROR_SERVICIOS", "message": "solicitud de cambio de estado RECHAZADO", "level": "error", "description": None}]
+    
+    if estado_actual != estado_solicitado:
+
+        if estado_actual in ["finalizada", "cancelada"]: #Una transición no permitida, o solicitada fuera del momento permitido, producirá 409.
+            errores[0]["description"]="transición no permitida (estado actual es finalizada o cancelada)"
+            return "error", errores
+
+        if estado_solicitado in ["finalizada", "cancelada"]:
+
+            if estado_solicitado == "cancelada" and ahora < reserva_inicio:
+                return "cancelada", None
+            if estado_solicitado == "finalizada" and reserva_fin <= ahora:
+                return "finalizada", None
+
+            errores[0]["description"]="solicitud fuera del momento permitido"
+            return "error", errores
+    
+    return "iguales", None

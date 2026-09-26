@@ -93,4 +93,34 @@ def obtener_reserva_id_val(id:str):
         errores["error"][0]["description"]="solo se permiten id enteros positivos"
         existe_error=errores
         return existe_error
+
+
+def actualizar_reserva_val(id:str):
+    existe_error=None
+
+    errores={"error": [{ "code": "ERROR_VALIDACION", "message": "REQUEST inválido", "level": "error", "description": None}]}
+
+    existe_error_id=obtener_reserva_id_val(id)
+    if existe_error_id is not None:
+        existe_error=existe_error_id
+        return existe_error_id
+
+    body = request.get_json(silent=True)
+    # Captura tanto el Content-Type incorrecto como el JSON (estructura) mal formado
+    if body is None or not isinstance(body, dict):
+        errores["error"][0]["description"]="Estructura JSON inválida o Content-Type debe ser application/json"
+        existe_error=errores
+        return existe_error
     
+    tipo_estado_solicitado = body.get("estado", None)
+    if tipo_estado_solicitado is None:
+        errores["error"][0]["description"]="Camp 'estado' inexistente"
+        existe_error=errores
+        return existe_error
+
+    if tipo_estado_solicitado not in ["confirmada", "finalizada", "cancelada"]:
+        errores["error"][0]["description"]="Tipo de solicitud invalida, solo se permiten confirmada, finalizada y cancelada"
+        existe_error=errores
+        return existe_error
+    
+    return existe_error

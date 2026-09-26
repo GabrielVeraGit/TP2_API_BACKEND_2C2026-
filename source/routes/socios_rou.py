@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request
 from source.services.socios_serv import crear_socio, obtener_socios, obtener_socio, modificar_socio
 from source.utils import construir_error_api
-from constants import PAGINATION_LIMIT_MAX, PAGINATION_LIMIT_MIN, PAGINATION_OFFSET_MIN
+from source.constants import PAGINATION_LIMIT_MAX, PAGINATION_LIMIT_MIN, PAGINATION_OFFSET_MIN
 
 socios_bp = Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
-def obtener_socios():
+def obtener_socios_rou():
 
 
     nombre = request.args.get("nombre")

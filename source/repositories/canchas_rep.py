@@ -1,7 +1,7 @@
 from source.db import ejecutar_instruccion
 
 
-def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
+def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=None):
 
     query = """
         SELECT
@@ -33,6 +33,10 @@ def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
         query += " AND activa = %s"
         valores.append(activa)
 
+    if limit is not None:
+        query += " LIMIT %s"
+        valores.append(limit)
+
     return ejecutar_instruccion(query, tuple(valores))
 
 
@@ -59,14 +63,7 @@ def crear_cancha(id_deporte, nombre, techada, activa, precio_hora):
         autocommit=True
     )
 
-    return {
-        "id": resultado[0]["id"],
-        "id_deporte": id_deporte,
-        "nombre": nombre,
-        "techada": techada,
-        "activa": activa,
-        "precio_hora": precio_hora
-    }
+    return resultado[0]["id"]
 
 
 def cancha_por_id(id):
@@ -83,7 +80,11 @@ def cancha_por_id(id):
         WHERE id = %s
     """
 
-    return ejecutar_instruccion(query, (id,))
+    resultado = ejecutar_instruccion(query, (id,))
+    if not resultado:
+        return None
+
+    return resultado[0]
 
 def update_cancha(
         id,

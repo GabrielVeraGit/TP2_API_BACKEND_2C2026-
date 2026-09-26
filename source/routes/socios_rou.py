@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from source.services.socios_serv import crear_socio, obtener_socios, obtener_socio, modificar_socio
 from source.utils import construir_error_api
+from constants import PAGINATION_LIMIT_MAX, PAGINATION_LIMIT_MIN, PAGINATION_OFFSET_MIN
 
 socios_bp = Blueprint("socios",__name__)
 
@@ -14,10 +15,10 @@ def obtener_socios():
     limit = request.args.get("_limit", default=10, type=int)
     offset = request.args.get("_offset", default=0, type=int)
 
-    if limit is None or limit < 1 or limit > 100:
+    if limit is None or limit < PAGINATION_LIMIT_MIN or limit > PAGINATION_LIMIT_MAX:
         return "", 400
 
-    if offset is None or offset < 0:
+    if offset is None or offset < PAGINATION_OFFSET_MIN:
         return "", 400
 
     if activo is not None:

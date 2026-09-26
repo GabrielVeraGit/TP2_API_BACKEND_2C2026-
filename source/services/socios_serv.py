@@ -3,7 +3,7 @@ from source.repositories.socios_rep import (
     obtener_socio_rep,
     crear_socio_rep,
     modificar_socio_rep,
-    existe_email_socio
+    obtener_socio_por_email_rep
 )
 from source.validators.socios_val import validar_socio, validar_email, validar_nombre
 from source.utils import construir_error_api
@@ -28,7 +28,7 @@ def crear_socio(nombre, email):
 
     nombre, email = validar_socio(nombre, email)
 
-    if existe_email_socio(email):
+    if obtener_socio_por_email_rep(email):
         raise ValueError(
             construir_error_api(
                 code="conflict.email.exists",
@@ -66,7 +66,7 @@ def modificar_socio(id, datos):
     if "email" in datos:
         email = validar_email(datos["email"])
 
-        if existe_email_socio(email):
+        if obtener_socio_por_email_rep(email):
             raise ValueError(construir_error_api(
                 code=f'conflict.email.exist',
                 message=f'EL email {email} ya existe',

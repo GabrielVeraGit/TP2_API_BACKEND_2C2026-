@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request
 from source.services.socios_serv import crear_socio, obtener_socios, obtener_socio, modificar_socio
-from source.utils import construir_error_api
+from source.utils import construir_error_api, construir_links_paginacion
 from source.constants import PAGINATION_LIMIT_MAX, PAGINATION_LIMIT_MIN, PAGINATION_OFFSET_MIN
 
 socios_bp = Blueprint("socios",__name__)
 
 @socios_bp.route("/socios", methods=["GET"])
-def obtener_socios_rou():
+def obtener_socios_route():
 
 
     nombre = request.args.get("nombre")
@@ -29,13 +29,20 @@ def obtener_socios_rou():
         else:
             return "", 400
 
-    resultados = obtener_socios(nombre, activo, limit, offset)
+    socios, total = obtener_socios(nombre, activo, limit, offset)
     
-    if not resultados:
+    if not socios:
         return '', 204
 
-    return jsonify(resultados), 200
-    
+    links = construir_links_paginacion(total, limit, offset)
+
+    respuesta = {
+        "socios" : socios,
+        "_links" : links
+    }
+
+    return jsonify(respuesta), 200
+
 @socios_bp.route("/socios", methods=["POST"])
 def crear_socio_route():
 
@@ -87,7 +94,7 @@ def actualizar_socio_id(id):
     try:
         modificar_socio(id, datos)
 
-        return '', 200
+        return jsonify(obtener_socio(id)), 200
 
     except ValueError as e:
         return jsonify(e.args[0]), 400

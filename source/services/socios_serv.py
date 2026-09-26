@@ -3,7 +3,8 @@ from source.repositories.socios_rep import (
     obtener_socio_rep,
     crear_socio_rep,
     modificar_socio_rep,
-    obtener_socio_por_email_rep
+    obtener_socio_por_email_rep,
+    contar_socios_rep
 )
 from source.validators.socios_val import validar_socio, validar_email, validar_nombre
 from source.utils import construir_error_api
@@ -11,12 +12,10 @@ from source.utils import construir_error_api
 
 def obtener_socios(nombre, activo, limit, offset):
 
-    return obtener_socios_rep(
-        nombre,
-        activo,
-        limit,
-        offset
-    )
+    socios = obtener_socios_rep(nombre, activo, limit, offset)
+    total = contar_socios_rep(nombre, activo)
+
+    return socios, total
 
 
 def obtener_socio(id):

@@ -1,0 +1,12 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: tp_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: Club_Deportivo
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro

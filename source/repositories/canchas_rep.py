@@ -1,7 +1,7 @@
 from source.db import ejecutar_instruccion
 
 
-def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=None):
+def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=None, offset=0):
 
     query = """
         SELECT
@@ -33,9 +33,9 @@ def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, l
         query += " AND activa = %s"
         valores.append(activa)
 
-    if limit is not None:
-        query += " LIMIT %s"
-        valores.append(limit)
+    query += " ORDER BY id ASC"
+    query += " LIMIT %s OFFSET %s"
+    valores.extend([limit, offset])
 
     return ejecutar_instruccion(query, tuple(valores))
 
@@ -127,3 +127,51 @@ def eliminar_cancha(id_cancha):
         (id_cancha,),
         autocommit=True
     )
+
+def consultar_canchas_disponibles(data):
+    fecha = data.get("fecha")
+    
+    hora_inicio = data.get("hora_inicio")
+    fecha_hora_inicio = fecha + " " + hora_inicio
+    
+    hora_fin = data.get("hora_fin")
+    fecha_hora_fin = fecha + " " + hora_fin
+
+    id_deporte = data.get("id_deporte")
+    techada = data.get("techada")
+    limit = data.get("limit")
+    offset = data.get("offset")
+    
+
+    query = """
+        SELECT
+            c.id,
+            c.deporte_id AS id_deporte,
+            c.nombre,
+            c.techada,
+            c.activa,
+            c.precio_hora
+        FROM canchas c
+        LEFT JOIN reservas r
+            ON r.cancha_id = c.id
+            AND r.estado = 'Confirmada'
+            AND r.fecha_hora_inicio < %s
+            AND r.fecha_hora_fin > %s
+        WHERE c.activa = TRUE
+            AND r.id IS NULL
+    """
+
+    valores = [fecha_hora_fin, fecha_hora_inicio]
+
+    if id_deporte is not None:
+        query += " AND c.deporte_id = %s"
+        valores.append(id_deporte)
+
+    if techada is not None:
+        query += " AND c.techada = %s"
+        valores.append(techada)
+
+    query += " ORDER BY c.id ASC LIMIT %s OFFSET %s"
+    valores.extend([limit, offset])
+
+    return ejecutar_instruccion(query, tuple(valores))

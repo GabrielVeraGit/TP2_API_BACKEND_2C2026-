@@ -11,14 +11,16 @@ def obtener_canchas():
     nombre = request.args.get("nombre")
     techada = request.args.get("techada")
     activa = request.args.get("activa")
-    limite = request.args.get("_limit")
+    limit = int(request.args.get('_limit', 10))
+    offset = int(request.args.get('_offset', 0))
 
     resultado = canchas_serv.obtener_canchas(
         id_deporte=id_deporte,
         nombre=nombre,
         techada=techada,
         activa=activa,
-        limit=limite
+        limit=limit,
+        offset=offset
     )
 
     return jsonify(resultado), 200
@@ -73,5 +75,17 @@ def eliminar_cancha_id(id):
 
 @canchas_bp.route("/canchas/disponibles", methods=["GET"])
 def obtener_canchas_disponibles():
-    print("obtener canchas disponibles")
-    return "retornar canchas disponibles"
+    data = {
+        "fecha": request.args.get("fecha"),
+        "hora_inicio": request.args.get("hora_inicio"),
+        "hora_fin": request.args.get("hora_fin"),
+        "id_deporte": request.args.get("id_deporte"),
+        "techada": request.args.get("techada"),
+        "limit" : int(request.args.get('_limit', 10)),
+        "offset" : int(request.args.get('_offset', 0))
+    }
+    validator = canchas_val.validar_canchas_disponibles(data)
+    if validator[0] is None:
+        return jsonify({"error": validator[1]}), 400
+    
+    return canchas_serv.canchas_disponibles(data)

@@ -1,25 +1,36 @@
-from source.data.canchas_data import canchas
 from source.repositories import canchas_rep, deportes_rep, reservas_rep
 
 def obtener_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=10,  offset=0):
     return canchas_rep.consultar_canchas(id_deporte, nombre, techada, activa, limit, offset)
 
+def contar_canchas(id_deporte=None, nombre=None, techada=None, activa=None):
+    return canchas_rep.contar_canchas_rep(id_deporte, nombre, techada, activa)
+
 def cancha_por_id(id):
     return canchas_rep.cancha_por_id(id)
 
 def crear_cancha(data):
+
     deporte_id = deportes_rep.consulta_deporte(data.get("id_deporte"))
 
     if deporte_id is None:
-        return None, "El deporte indicado no existe" 
+        return None, "El deporte indicado no existe"
 
-    id_cancha= canchas_rep.crear_cancha(
-        id_deporte=data.get("id_deporte"),
-        nombre=data.get("nombre"),
-        techada=data.get("techada"),
-        activa=data.get("activa"),
-        precio_hora=data.get("precio_hora")
-        )
+    nombre = data.get("nombre")
+    id_deporte = data.get("id_deporte")
+
+    techada = data.get("techada", False)
+    activa = data.get("activa", True)
+
+    precio_hora = data.get("precio_hora")
+
+    id_cancha = canchas_rep.crear_cancha(
+        id_deporte,
+        nombre,
+        techada,
+        activa,
+        precio_hora
+    )
 
     return canchas_rep.cancha_por_id(id_cancha)
 

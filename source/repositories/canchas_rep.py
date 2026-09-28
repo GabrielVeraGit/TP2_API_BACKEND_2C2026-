@@ -1,5 +1,33 @@
 from source.db import ejecutar_instruccion
 
+def contar_canchas_rep(id_deporte=None, nombre=None, techada=None, activa=None):
+    query = """
+        SELECT COUNT(*) AS total
+        FROM canchas
+        WHERE 1=1
+    """
+
+    valores = []
+
+    if id_deporte is not None:
+        query += " AND deporte_id = %s"
+        valores.append(id_deporte)
+
+    if nombre is not None:
+        query += " AND LOWER(nombre) LIKE LOWER(%s)"
+        valores.append(f"%{nombre}%")
+
+    if techada is not None:
+        query += " AND techada = %s"
+        valores.append(techada)
+
+    if activa is not None:
+        query += " AND activa = %s"
+        valores.append(activa)
+
+    resultados = ejecutar_instruccion(query, tuple(valores))
+
+    return resultados[0]["total"]
 
 def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, limit=None, offset=0):
 
@@ -22,8 +50,8 @@ def consultar_canchas(id_deporte=None, nombre=None, techada=None, activa=None, l
         valores.append(id_deporte)
 
     if nombre is not None:
-        query += " AND nombre = %s"
-        valores.append(nombre)
+        query += " AND LOWER(nombre) LIKE LOWER(%s)"
+        valores.append(f"%{nombre}%")
 
     if techada is not None:
         query += " AND techada = %s"

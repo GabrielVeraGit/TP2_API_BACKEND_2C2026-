@@ -11,12 +11,6 @@ def aplicar_formato(registro:dict):
         registro['fecha_hora_inicio'] = f"{fecha_ini.strftime('%Y-%m-%dT%H:%M:%S.%f')}-03:00"
         registro['fecha_hora_fin'] = f"{fecha_fin.strftime('%Y-%m-%dT%H:%M:%S.%f')}-03:00"
 
-        #PARA LOS PRECIOS DECIMAL(MYSQL) A int(PYTHON)
-        if registro['precio_hora'] is not None:
-            registro['precio_hora'] = int(registro['precio_hora']*100) 
-
-        if registro['precio_total'] is not None:
-            registro['precio_total'] = int(registro['precio_total']*100) 
 
 def obtener_reservas_rep(filtros:list, query_filtros:str) -> list:
     
@@ -158,13 +152,13 @@ def crear_reserva_rep(registro_socio:dict, registro_cancha:dict, fh_inicio:datet
     query=f"""INSERT INTO reservas (socio_id, cancha_id, fecha_hora_inicio, fecha_hora_fin, estado, precio_hora, precio_total) VALUES (%s, %s, %s, %s, %s, %s, %s);"""
     
     precio_hora_centavos=registro_cancha["precio_hora"]
-    horas_total=fh_fin.hour - fh_inicio.hour
+    horas_total=int(fh_fin.hour - fh_inicio.hour)
     precio_total_centavos=precio_hora_centavos*horas_total
 
     valores=(registro_socio["id"], registro_cancha["id"], fh_inicio.replace(tzinfo=None), fh_fin.replace(tzinfo=None), estado, precio_hora_centavos, precio_total_centavos)
 
     try:
-        ejecutar_instruccion(query, valores, True)
+        resultado=ejecutar_instruccion(query, valores, True)
         return None, None
     except Exception as error_interno:
         return "error_interno", str(error_interno)

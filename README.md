@@ -8,6 +8,7 @@
 | Víctor Morinigo | 105042 | [Danisan-78](https://github.com/Danisan-78) |
 | Gabriel Vera | 114517 | [GabrielVeraGit](https://github.com/GabrielVeraGit) |
 | Agustín Panozzo | 107618 |[agustin-panozzo](https://github.com/agustin-panozzo) |
+| Smith Montes | 114434 | [smith351145](https://github.com/smith351145) |
 
 ## Configuracion
 

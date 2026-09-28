@@ -1,4 +1,5 @@
 from flask import request
+from datetime import datetime, timezone, timedelta
 
 def fecha_str_correcta(fecha:str) -> bool: #yyy-mm-dd
     FECHA_MINIMA=1800
@@ -124,3 +125,85 @@ def actualizar_reserva_val(id:str):
         return existe_error
     
     return existe_error
+
+
+def verificar_formato_ISO(fecha_hora:str, name:str, errores:dict) -> (dict | None):
+    zona_horaria_GMT_3 = timezone(timedelta(hours=-3))
+    try:
+        fecha_hora=datetime.fromisoformat(fecha_hora)
+
+        if fecha_hora.tzinfo == None or fecha_hora.tzinfo != zona_horaria_GMT_3:
+            errores["error"][0]["description"]=f"{name} con zona horaria invalida"
+            return errores
+        
+        if fecha_hora.minute != 0 or fecha_hora.second != 0 or fecha_hora.microsecond != 0:
+            errores["error"][0]["description"]=f"{name} con una hora distinta de empunto"
+            return errores
+    except (ValueError, TypeError):
+        errores["error"][0]["description"]=f"{name} debe tener un formato ISO 8601 valido"
+        return errores
+    
+    return None
+
+def crear_reserva_val()-> (dict | None):
+    errores={"error": [{ "code": "ERROR_VALIDACION", "message": "REQUEST JSON inválido", "level": "error", "description": None}]}
+
+    body = request.get_json(silent=True)
+
+    if body is None or not isinstance(body, dict):
+        errores["error"][0]["description"]="Estructura JSON inválida o Content-Type debe ser application/json"
+        return errores
+ 
+    id_socio=body.get("id_socio",None)
+    try:
+        if id_socio is None:
+            errores["error"][0]["description"]="campo id_socio inexistente"
+            return errores
+        
+        id_socio=int(id_socio)
+
+        if id_socio<=0:
+            errores["error"][0]["description"]="solo se permiten id_socio enteros positivos"
+            return errores
+    except (ValueError, TypeError):
+        errores["error"][0]["description"]="id_socio solo admite tipo int()"
+        return errores
+    
+    id_cancha=body.get("id_cancha",None)
+    try:
+        if id_cancha is None:
+            errores["error"][0]["description"]="campo id_cancha inexistente"
+            return errores
+        
+        id_cancha=int(id_cancha)
+
+        if id_cancha<=0:
+            errores["error"][0]["description"]="solo se permiten id_cancha enteros positivos"
+            return errores
+    except (ValueError, TypeError):
+        errores["error"][0]["description"]="id_cancha solo admite tipo int()"
+        return errores
+
+    
+    fecha_hora_inicio=body.get("fecha_hora_inicio", None)
+
+    if fecha_hora_inicio is None:
+        errores["error"][0]["description"]="campo fecha_hora_inicio inexistente"
+        return errores
+    
+    resultado=verificar_formato_ISO(fecha_hora_inicio, "fecha_hora_inicio", errores)
+    if resultado != None:
+        return resultado
+
+
+    fecha_hora_fin=body.get("fecha_hora_fin", None)
+
+    if fecha_hora_fin is None:
+        errores["error"][0]["description"]="campo fecha_hora_fin inexistente"
+        return errores
+    
+    resultado=verificar_formato_ISO(fecha_hora_fin, "fecha_hora_fin", errores)
+    if resultado != None:
+        return resultado
+    
+    return None

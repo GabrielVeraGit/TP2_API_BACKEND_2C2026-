@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
-from source.validators.reservas_val import obtener_reservas_val, obtener_reserva_id_val, actualizar_reserva_val
-from source.services.reservas_serv import obtener_reservas_serv, actualizar_reserva_serv
+from source.validators.reservas_val import obtener_reservas_val, obtener_reserva_id_val, actualizar_reserva_val, crear_reserva_val
+from source.services.reservas_serv import obtener_reservas_serv, actualizar_reserva_serv, crear_reserva_serv
 from source.repositories.reservas_rep import obtener_reservas_rep, obtener_reserva_id_rep, actualizar_reserva_rep, obtener_links_rep
 reservas_bp = Blueprint("reservas",__name__)
 
@@ -26,10 +26,7 @@ def obtener_reservas():
 
         return jsonify({"reservas":registros, "links":links}), 200
 
-@reservas_bp.route("/reservas", methods=["POST"])
-def crear_reserva():
-    print("crear reserva")
-    return "retorna codigo exito/fallo"
+
 
 @reservas_bp.route("/reservas/<string:id>", methods=["GET"])
 def obtener_reserva_id(id:str):
@@ -82,3 +79,15 @@ def actualizar_reserva(id:str):
                 return jsonify({"error_interno": registro}), 500
             else:
                 return jsonify({"reserva actualizada":registro}), 200
+
+@reservas_bp.route("/reservas", methods=["POST"])
+def crear_reserva():
+    error_val = crear_reserva_val()
+    if error_val is not None:
+        return jsonify(error_val), 400
+    
+    error_serv = crear_reserva_serv()
+    if error_serv is not None:
+        return jsonify(error_serv), 400
+
+    return jsonify({"exito": "Reserva creada"}), 201

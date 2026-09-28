@@ -83,7 +83,7 @@ crear_estructura_db(){
         sleep 1
         echo "EXITO!"
     else
-        echo "Archivo .venv no existe o la estructura DB ya fue creada"
+        echo "Archivo .env no existe o la estructura DB ya fue creada"
     fi
 }
 

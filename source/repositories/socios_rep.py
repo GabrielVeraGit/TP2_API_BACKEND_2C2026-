@@ -24,7 +24,7 @@ def obtener_socios_rep(nombre, activo, limit, offset):
 
     return ejecutar_instruccion(query, tuple(valores))
 
-def obtener_socio(id):
+def obtener_socio_rep(id):
     query = """
         SELECT id, nombre, email, activo
         FROM socios
@@ -70,9 +70,9 @@ def modificar_socio_rep(id, datos):
 
     return ejecutar_instruccion(query, tuple(valores), autocommit=True)
 
-def existe_email_socio(email: str) -> bool:
+def obtener_socio_por_email_rep(email):
     """
-    Verifica si el email ya existe en la base de datos.
+    Busca un socio en la base de datos con el email proporcionado.
     """
 
     query = """
@@ -82,3 +82,27 @@ def existe_email_socio(email: str) -> bool:
     """
 
     return ejecutar_instruccion(query, (email,))
+
+def contar_socios_rep(nombre, activo):
+    query = """
+        SELECT COUNT(*) AS total
+        FROM socios
+    """
+
+    condiciones = []
+    valores = []
+
+    if nombre is not None:
+        condiciones.append("LOWER(nombre) LIKE LOWER(%s)")
+        valores.append(f"%{nombre}%")
+
+    if activo is not None:
+        condiciones.append("activo = %s")
+        valores.append(activo)
+
+    if condiciones:
+        query += "WHERE " + " AND ".join(condiciones)
+
+    resultado = ejecutar_instruccion(query, tuple(valores))
+
+    return resultado[0]["total"]

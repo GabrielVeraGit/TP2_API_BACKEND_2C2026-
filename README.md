@@ -11,9 +11,9 @@
 
 ## Configuracion
 
-Ejecutar el archivo init_api.sh para configuraciones necesarias(beta)
+Ejecutar el archivo MENU_API_REST.sh para configuraciones necesarias
 
 ```
 Bash
-./init_api.sh
+./MENU_API_REST.sh
  ```

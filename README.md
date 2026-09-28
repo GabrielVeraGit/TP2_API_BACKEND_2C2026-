@@ -11,7 +11,7 @@
 
 ## Configuracion
 
-Ejecutar el archivo MENU_API_REST.sh para configuraciones necesarias
+Ejecutar el archivo MENU_API_REST.sh para configuraciones necesarias y poder usar la API.
 
 ```
 Bash
